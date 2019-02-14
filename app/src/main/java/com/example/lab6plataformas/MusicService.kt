@@ -1,5 +1,6 @@
 package com.example.lab6plataformas
 
+import android.annotation.TargetApi
 import android.app.Notification
 import android.app.Service
 import android.content.Intent
@@ -100,8 +101,9 @@ class MusicService() : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.On
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCompletion(mp: MediaPlayer?) {
         mp!!.reset();
-        go()
         playNext();
+        Thread.sleep(100)
+        go()
     }
 
     fun getPosn(): Int {
@@ -119,9 +121,27 @@ class MusicService() : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.On
     fun pausePlayer() {
         player.pause()
     }
-
+    //Si preciono cualquiera de los dos botones avanza o retrocede
+    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.O)
     fun seek(posn: Int) {
-        player.seekTo(posn)
+        if(posn>getPosn()){
+            songPosn++
+            if(songPosn==songs.size) {
+                songPosn=0
+            }
+            playSong();
+            Thread.sleep(100)
+            go()
+        }else{
+            songPosn = songPosn-1
+            if(songPosn==-1) {
+                songPosn = songs.size - 1;
+            }
+            playSong();
+            Thread.sleep(100)
+            go()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -154,20 +174,14 @@ class MusicService() : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.On
     }
 
     //Acciones de los botones
-    //Prev
+    //Va a la primera cancion
     fun playPrev(){
-        songPosn = songPosn-2
-        if(songPosn==0) {
-            songPosn = songs.size - 1;
-        }
-            playSong();
+        songPosn = 0
+        playSong();
     }
-    //Next
+    //Va a la ultima cancion
     fun playNext(){
-        songPosn++
-        if(songPosn==songs.size) {
-            songPosn=0
-        }
+        songPosn=songs.size-1
         playSong();
     }
 
